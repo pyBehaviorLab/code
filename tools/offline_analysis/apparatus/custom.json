@@ -1,0 +1,9 @@
+{
+  "id": "custom",
+  "label": "Custom (define from scratch)",
+  "description": "Empty template, pick this when no preset matches; then use the Zone Editor to draw your own zones.",
+  "arena": {"shape": "rectangle"},
+  "zones": [],
+  "default_measures": ["distance", "speed"],
+  "default_plots":    ["trajectory", "heatmap"]
+}

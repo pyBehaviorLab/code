@@ -1,0 +1,24 @@
+{
+  "id": "rl_interval_analysis",
+  "name": "RL Interval & Phase Analysis",
+  "version": "1.0",
+  "description": "Reversal learning analysis with time-bin intervals, phase metrics, and self-initiated window.",
+  "input": {
+    "type": "MULTIPLE_FILES",
+    "file_filter": "*.tsv *.txt *.csv *.log"
+  },
+  "parameters": [
+    {"name": "bin_minutes", "label": "Bin Size (minutes)",
+     "type": "INT", "default": 10, "min": 1, "max": 120},
+    {"name": "session_minutes", "label": "Session Duration (min)",
+     "type": "INT", "default": 60, "min": 10, "max": 360},
+    {"name": "rolling_window", "label": "Rolling Accuracy Window",
+     "type": "INT", "default": 10, "min": 2, "max": 100}
+  ],
+  "columns": [
+    {"key": "subject_id", "label": "Subject"},
+    {"key": "session_date", "label": "Date"},
+    {"key": "box_id", "label": "Box"}
+  ],
+  "legacy_adapter": true
+}

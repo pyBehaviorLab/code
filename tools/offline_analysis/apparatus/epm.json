@@ -1,0 +1,24 @@
+{
+  "id": "epm",
+  "label": "Elevated Plus Maze",
+  "description": "Plus-shaped maze with two open arms (no walls) and two closed arms (walled), center square.",
+  "arena": {"shape": "plus", "arm_length_cm": 30, "arm_width_cm": 5},
+  "zones": [
+    {"name": "open_north",  "type": "rect", "coords": [[0.42, 0.0],  [0.58, 0.42]], "color": "#fbbf24",
+     "tags": ["open"]},
+    {"name": "open_south",  "type": "rect", "coords": [[0.42, 0.58], [0.58, 1.0]],  "color": "#fbbf24",
+     "tags": ["open"]},
+    {"name": "closed_west", "type": "rect", "coords": [[0.0, 0.42],  [0.42, 0.58]], "color": "#60a5fa",
+     "tags": ["closed"]},
+    {"name": "closed_east", "type": "rect", "coords": [[0.58, 0.42], [1.0, 0.58]],  "color": "#60a5fa",
+     "tags": ["closed"]},
+    {"name": "center",      "type": "rect", "coords": [[0.42, 0.42], [0.58, 0.58]], "color": "#a855f7"}
+  ],
+  "default_measures": ["distance", "speed", "open_arm_time", "anxiety_index"],
+  "default_plots":    ["trajectory", "heatmap", "zone_bar"],
+  "computed_metrics": {
+    "anxiety_index": "open_arm_time / (open_arm_time + closed_arm_time)",
+    "open_arm_time": "sum(time[zone.tags=='open'])",
+    "closed_arm_time": "sum(time[zone.tags=='closed'])"
+  }
+}

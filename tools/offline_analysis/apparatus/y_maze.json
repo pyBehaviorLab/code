@@ -1,0 +1,14 @@
+{
+  "id": "y_maze",
+  "label": "Y-Maze",
+  "description": "Y-shaped maze with three arms 120° apart, scored for spontaneous alternation.",
+  "arena": {"shape": "Y", "arm_length_cm": 35, "arm_width_cm": 8},
+  "zones": [
+    {"name": "arm_A",  "type": "polygon", "coords": [[0.50, 0.50], [0.50, 0.05], [0.42, 0.05], [0.42, 0.50]], "color": "#fbbf24", "tags": ["arm"]},
+    {"name": "arm_B",  "type": "polygon", "coords": [[0.50, 0.50], [0.90, 0.75], [0.84, 0.82], [0.46, 0.58]], "color": "#34d399", "tags": ["arm"]},
+    {"name": "arm_C",  "type": "polygon", "coords": [[0.50, 0.50], [0.10, 0.75], [0.16, 0.82], [0.54, 0.58]], "color": "#60a5fa", "tags": ["arm"]},
+    {"name": "center", "type": "circle",  "coords": [[0.50, 0.50], 0.07], "color": "#a855f7"}
+  ],
+  "default_measures": ["distance", "speed", "alternation_rate"],
+  "default_plots":    ["trajectory", "heatmap", "zone_bar"]
+}

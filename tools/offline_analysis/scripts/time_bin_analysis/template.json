@@ -1,0 +1,21 @@
+{
+  "id": "time_bin_analysis",
+  "name": "Time-Bin Analysis (Reversal Learning)",
+  "version": "1.0",
+  "description": "Aggregate correct/incorrect responses and latencies into time bins across subjects with SEM.",
+  "input": {
+    "type": "MULTIPLE_FILES",
+    "file_filter": "*.txt *.tsv *.csv *.log"
+  },
+  "parameters": [
+    {"name": "bin_duration_min", "label": "Bin Duration (minutes)",
+     "type": "FLOAT", "default": 3.0, "min": 0.5, "max": 60.0,
+     "description": "Duration of each time bin in minutes"}
+  ],
+  "columns": [
+    {"key": "subject_id", "label": "Subject"},
+    {"key": "session_date", "label": "Date"},
+    {"key": "box_id", "label": "Box"}
+  ],
+  "legacy_adapter": true
+}

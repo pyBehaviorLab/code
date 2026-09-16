@@ -1,0 +1,19 @@
+{
+  "id": "session_plot",
+  "name": "Session Plot",
+  "version": "1.0",
+  "description": "Plot states, events, and analog data for a pyControl session.",
+  "input": {
+    "type": "SINGLE_FILE",
+    "file_filter": "*.txt *.tsv"
+  },
+  "parameters": [],
+  "columns": [
+    {"key": "subject_id", "label": "Subject"},
+    {"key": "session_date", "label": "Date"},
+    {"key": "box_id", "label": "Box"},
+    {"key": "file", "label": "File"}
+  ],
+  "plots": [],
+  "legacy_adapter": true
+}

@@ -1,0 +1,19 @@
+{
+  "id": "default",
+  "label": "Default keypoint bundle",
+  "description": "Generic 6-keypoint mouse layout; override per project.",
+  "parts": [
+    {"name": "nose",     "idx": 0},
+    {"name": "head",     "idx": 1},
+    {"name": "neck",     "idx": 2},
+    {"name": "center",   "idx": 3},
+    {"name": "back",     "idx": 4},
+    {"name": "tailbase", "idx": 5}
+  ],
+  "roles": {
+    "primary": "nose",
+    "zone":    ["nose", "center"],
+    "head":    "head",
+    "body":    "center"
+  }
+}

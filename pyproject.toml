@@ -1,0 +1,120 @@
+[build-system]
+requires = ["setuptools>=68", "wheel", "cython>=3.0", "numpy>=1.24"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pybehaviorlab"
+version = "2.0.0"
+description = "Unified behavioral neuroscience platform for maze and operant-conditioning experiments."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "GPL-3.0-or-later"
+authors = [{ name = "Sampath Kapanaiah", email = "sampath.kapanaiah@uni-ulm.de" }]
+keywords = [
+    "neuroscience",
+    "behavior",
+    "operant-conditioning",
+    "maze",
+    "deeplabcut",
+    "sleap",
+    "pycontrol",
+    "closed-loop",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    # License classifier removed, modern setuptools reads the SPDX
+    # ``license = "GPL-3.0-or-later"`` field above instead.
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "PySide6>=6.6,<6.11",
+    "numpy>=1.24",
+    "opencv-python>=4.8",
+    "pyserial>=3.5",
+    "shapely>=2.0",
+    "pandas>=2.0",
+    "matplotlib>=3.7",
+    "pyqtgraph>=0.13",
+]
+
+[project.optional-dependencies]
+dlc = ["deeplabcut-live>=1.0"]
+sleap = ["sleap-nn"]
+docs = [
+    "sphinx>=7.2",
+    "sphinx-rtd-theme>=2.0",
+    "myst-parser>=2.0",
+    "sphinx-copybutton>=0.5",
+    "sphinx-autodoc-typehints>=1.25",
+    "sphinx-design>=0.6",
+    "sphinxcontrib-mermaid>=0.9",
+]
+dev = [
+    "pytest>=7.4",
+    "pytest-qt>=4.2",
+    "pytest-timeout>=2.3",
+    "mypy>=1.8",
+    "ruff>=0.1",
+    "cython>=3.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["source*", "config*", "devices*", "tasks*", "hardware_definitions*"]
+exclude = ["tests*", "tools*", "data*", "logs*", "models*", "build*", "experiments*", "zone_config*", "controls_dialogs*", "docs*"]
+
+[tool.mypy]
+python_version = "3.9"
+strict = true
+warn_unused_configs = true
+warn_unreachable = true
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["cv2.*", "PySide6.*", "serial.*", "shapely.*", "pyqtgraph.*", "PySpin.*", "ximea.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+# tools/offline_analysis ships its own tests, including the ones that enforce
+# its standalone perimeter (no source.* imports) and its no-dead-modules rule.
+# They were never collected, which is how three of its imports rotted into
+# permanent ImportErrors unnoticed.
+testpaths = ["source/tests", "tools/offline_analysis/tests"]
+qt_api = "pyside6"
+# A GUI suite can block forever rather than fail: a modal dialog opened by the
+# code under test waits for a click that a headless run will never give it, and
+# the run just stops with no failing test to point at. The cap turns that into
+# a named failure with a stack. 300 s is far above the slowest real test here
+# (a few seconds) and far below "nobody noticed for twenty minutes".
+timeout = 300
+# "thread" rather than the signal method, which needs SIGALRM and so does
+# nothing on Windows, where this suite runs.
+timeout_method = "thread"
+# Time the test body only. Timing setup and teardown as well means starting and
+# cancelling a timer around every fixture, and this suite is fixture-heavy
+# enough that it made the full run 7x slower (6 min -> 38 min) for no extra
+# protection worth having. The gap it leaves is a hang inside a fixture rather
+# than inside a test.
+timeout_func_only = true
+markers = [
+    "unit: unit tests",
+    "integration: cross-module integration tests",
+    "slow: tests that may take several seconds",
+    "config: tests for configuration handling",
+    "communication: serial/MCU communication tests",
+    "leaks_widgets: test intentionally leaves top-level Qt widgets alive",
+]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF"]

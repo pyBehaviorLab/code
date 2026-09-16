@@ -1,0 +1,6 @@
+{
+  "id": "speed_profile",
+  "label": "Speed Profile",
+  "default_enabled": true,
+  "description": "Line plot of instantaneous speed across the session."
+}

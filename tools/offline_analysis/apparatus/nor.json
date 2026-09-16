@@ -1,0 +1,16 @@
+{
+  "id": "nor",
+  "label": "Novel Object Recognition",
+  "description": "Square open arena with two object zones; scores object preference (discrimination index).",
+  "arena": {"shape": "square", "size_cm": 50},
+  "zones": [
+    {"name": "object_A",  "type": "circle", "coords": [[0.30, 0.50], 0.10], "color": "#fbbf24", "tags": ["object"]},
+    {"name": "object_B",  "type": "circle", "coords": [[0.70, 0.50], 0.10], "color": "#34d399", "tags": ["object"]},
+    {"name": "interaction_A", "type": "circle", "coords": [[0.30, 0.50], 0.16], "color": "#fde68a", "tags": ["interaction"]},
+    {"name": "interaction_B", "type": "circle", "coords": [[0.70, 0.50], 0.16], "color": "#86efac", "tags": ["interaction"]},
+    {"name": "center",    "type": "rect", "coords": [[0.25, 0.25], [0.75, 0.75]], "color": "#a855f7"},
+    {"name": "periphery", "type": "rect_ring", "coords": [[0.0, 0.0], [1.0, 1.0], [0.10, 0.10], [0.90, 0.90]], "color": "#60a5fa"}
+  ],
+  "default_measures": ["distance", "speed", "object_exploration_time", "discrimination_index"],
+  "default_plots":    ["trajectory", "heatmap", "zone_bar"]
+}

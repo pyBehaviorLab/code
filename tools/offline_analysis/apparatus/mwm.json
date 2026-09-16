@@ -1,0 +1,16 @@
+{
+  "id": "mwm",
+  "label": "Morris Water Maze",
+  "description": "Circular pool divided into 4 quadrants with a hidden platform.",
+  "arena": {"shape": "circle", "diameter_cm": 120},
+  "zones": [
+    {"name": "quadrant_NE", "type": "annular_sector", "coords": [[0.5, 0.5], 0.0, 0.5,   0,  90], "color": "#60a5fa", "tags": ["quadrant"]},
+    {"name": "quadrant_SE", "type": "annular_sector", "coords": [[0.5, 0.5], 0.0, 0.5,  90, 180], "color": "#34d399", "tags": ["quadrant"]},
+    {"name": "quadrant_SW", "type": "annular_sector", "coords": [[0.5, 0.5], 0.0, 0.5, 180, 270], "color": "#fbbf24", "tags": ["quadrant"]},
+    {"name": "quadrant_NW", "type": "annular_sector", "coords": [[0.5, 0.5], 0.0, 0.5, 270, 360], "color": "#fb7185", "tags": ["quadrant", "target"]},
+    {"name": "platform",    "type": "circle", "coords": [[0.30, 0.30], 0.06], "color": "#a855f7", "tags": ["target"]},
+    {"name": "annulus",     "type": "annular_sector", "coords": [[0.30, 0.30], 0.06, 0.18, 0, 360], "color": "#c084fc"}
+  ],
+  "default_measures": ["distance", "speed", "platform_latency", "platform_crossings", "path_efficiency"],
+  "default_plots":    ["trajectory", "heatmap", "zone_bar"]
+}

@@ -1,0 +1,12 @@
+{
+  "id": "immobility",
+  "label": "Immobility",
+  "default_enabled": false,
+  "unit": "s",
+  "description": "Time with speed below the immobility threshold (no minimum bout).",
+  "params": [
+    {"name": "immobility_thresh", "label": "Speed threshold",
+     "type": "FLOAT", "default": 1.0, "min": 0.1, "max": 50.0,
+     "unit": "cm/s"}
+  ]
+}

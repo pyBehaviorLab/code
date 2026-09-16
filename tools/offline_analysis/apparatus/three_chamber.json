@@ -1,0 +1,17 @@
+{
+  "id": "three_chamber",
+  "label": "Three-Chamber Sociability",
+  "description": "Three connected chambers; scores sociability and social-novelty preference.",
+  "arena": {"shape": "rectangle", "length_cm": 60, "width_cm": 40},
+  "zones": [
+    {"name": "left_chamber",   "type": "rect", "coords": [[0.00, 0.00], [0.33, 1.00]], "color": "#60a5fa", "tags": ["chamber"]},
+    {"name": "center_chamber", "type": "rect", "coords": [[0.33, 0.00], [0.67, 1.00]], "color": "#a855f7", "tags": ["chamber"]},
+    {"name": "right_chamber",  "type": "rect", "coords": [[0.67, 0.00], [1.00, 1.00]], "color": "#34d399", "tags": ["chamber"]},
+    {"name": "cup_left",       "type": "circle", "coords": [[0.17, 0.50], 0.10], "color": "#fbbf24", "tags": ["cup", "social"]},
+    {"name": "cup_right",      "type": "circle", "coords": [[0.83, 0.50], 0.10], "color": "#fb7185", "tags": ["cup", "novel"]},
+    {"name": "interaction_left",  "type": "circle", "coords": [[0.17, 0.50], 0.15], "color": "#fde68a", "tags": ["interaction"]},
+    {"name": "interaction_right", "type": "circle", "coords": [[0.83, 0.50], 0.15], "color": "#fecaca", "tags": ["interaction"]}
+  ],
+  "default_measures": ["distance", "speed", "sociability_index", "social_novelty_index"],
+  "default_plots":    ["trajectory", "heatmap", "zone_bar"]
+}

@@ -1,0 +1,11 @@
+{
+  "id": "fear_conditioning",
+  "label": "Fear Conditioning Chamber",
+  "description": "Standard FC chamber, full arena scored for freezing %.",
+  "arena": {"shape": "rectangle", "length_cm": 30, "width_cm": 25},
+  "zones": [
+    {"name": "arena", "type": "rect", "coords": [[0.0, 0.0], [1.0, 1.0]], "color": "#60a5fa"}
+  ],
+  "default_measures": ["distance", "speed", "freezing", "immobility"],
+  "default_plots":    ["trajectory", "speed_profile"]
+}

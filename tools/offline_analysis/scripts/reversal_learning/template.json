@@ -1,0 +1,46 @@
+{
+  "id": "reversal_learning",
+  "name": "Reversal Learning Analysis",
+  "version": "1.0",
+  "description": "Analyze reversal-learning sessions with rolling accuracy and reversal metrics.",
+  "auto_detect_keywords": ["Correct", "Incorrect", "Reversal"],
+  "input": {
+    "type": "MULTIPLE_FILES",
+    "file_filter": "*.txt *.tsv *.csv *.log",
+    "min_files": 1
+  },
+  "parameters": [
+    {"name": "roll_window", "label": "Rolling Accuracy Window",
+     "type": "INT", "default": 10, "min": 2, "max": 200,
+     "description": "Number of trials for rolling-accuracy calculation"},
+    {"name": "acc_window_for_rev", "label": "Pre-Reversal Accuracy Window",
+     "type": "INT", "default": 20, "min": 2, "max": 200,
+     "description": "Trials before reversal used for accuracy calculation"}
+  ],
+  "counters": {
+    "correct":   {"type": "print", "match": "Correct"},
+    "incorrect": {"type": "print", "match": "Incorrect"},
+    "reversals": {"type": "print", "match": "Reversal"}
+  },
+  "calculations": {
+    "n_trials":     "correct + incorrect",
+    "accuracy_pct": "(correct / (correct + incorrect)) * 100"
+  },
+  "columns": [
+    {"key": "subject_id",   "label": "Subject"},
+    {"key": "session_date", "label": "Date"},
+    {"key": "box_id",       "label": "Box"},
+    {"key": "n_trials",     "label": "Trials"},
+    {"key": "correct",      "label": "Correct"},
+    {"key": "incorrect",    "label": "Incorrect"},
+    {"key": "accuracy_pct", "label": "Accuracy %", "format": "{:.1f}"},
+    {"key": "reversals",    "label": "# Reversals"}
+  ],
+  "plots": [
+    {"name": "Accuracy", "type": "circular", "metric": "Accuracy %"},
+    {"name": "Trial Counts", "type": "bar", "metric": "Trials",
+     "ylabel": "trials"}
+  ],
+  "hook_class": "",
+  "legacy_adapter": true
+}

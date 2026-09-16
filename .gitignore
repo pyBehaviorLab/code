@@ -1,0 +1,102 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+*.c
+
+# Build / packaging
+# legacy build/ (older setuptools) and current setuptools scratch (--build-base)
+build/
+source/cython/_build/
+
+# Sphinx output
+docs/_build/
+dist/
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Tooling caches
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# IDEs
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Data / logs (per-rig output, not source)
+logs/
+data/
+*.log
+
+# Model weights and checkpoints — distribute separately, document download path in README
+models/
+*.h5
+*.pth
+*.pt
+*.pb
+*.tflite
+*.onnx
+*.ckpt
+*.data-*
+*.index
+*.meta
+
+# Recorded sessions / large binary artifacts
+*.mat
+*.parquet
+*.npz
+*.mp4
+*.avi
+*.mkv
+
+# Working files / personal drafts — not source. Spreadsheets, photos,
+# session-log dumps, analysis outputs and email drafts that live in the
+# tree during development but must not ship in the repo.
+*.xlsx
+*.xls
+*.JPG
+*.jpg
+*.jpeg
+*_video_data.txt
+analysis_results.*
+error.txt
+mail.txt
+*.tmp.*
+
+# experiments/tracking_configs — ship only the curated examples
+# (bg_images/*_bg.png, box{1,2}_zones.json, tracking_config.json). The
+# dated per-session captures below are real rig history: kept on disk,
+# excluded from the repo.
+experiments/tracking_configs/box*_[0-9]*.png
+experiments/tracking_configs/box*_[0-9]*_zones.JSON
+experiments/tracking_configs/tracking_config_[0-9]*.json
+
+# graphify code-knowledge-graph output. Regenerate with:
+#   <pyos5_new>/Scripts/graphify.exe update .
+# graph.json is ~13 MB and changes on every commit; the docs that matter
+# (docs/ARCHITECTURE.md) are checked in instead.
+graphify-out/
+
+# Rebuilt AST-import dependency graph (audit tooling); regenerable.
+_depgraph.json
+
+# Standalone page exports from tools/docs_edit.py
+docs/_export/

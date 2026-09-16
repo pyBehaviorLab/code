@@ -1,0 +1,9 @@
+{
+  "id": "trajectory",
+  "label": "Trajectory",
+  "default_enabled": true,
+  "description": "Per-session 2-D path of the primary body part, color-coded by time or speed.",
+  "options": {
+    "color_by": ["time", "speed"]
+  }
+}

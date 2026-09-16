@@ -1,0 +1,15 @@
+{
+  "id": "freezing",
+  "label": "Freezing",
+  "default_enabled": false,
+  "unit": "s",
+  "description": "Duration of freezing bouts (speed below threshold for at least min_ms).",
+  "params": [
+    {"name": "freeze_threshold", "label": "Speed threshold",
+     "type": "FLOAT", "default": 2.0, "min": 0.1, "max": 50.0,
+     "unit": "cm/s"},
+    {"name": "freeze_min_ms", "label": "Minimum bout",
+     "type": "INT", "default": 500, "min": 50, "max": 10000,
+     "unit": "ms"}
+  ]
+}

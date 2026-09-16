@@ -1,0 +1,6 @@
+{
+  "id": "zone_bar",
+  "label": "Zone Time Bar Chart",
+  "default_enabled": true,
+  "description": "Time spent in each zone, sorted by total."
+}

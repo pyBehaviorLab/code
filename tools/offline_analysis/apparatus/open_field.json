@@ -1,0 +1,16 @@
+{
+  "id": "open_field",
+  "label": "Open Field",
+  "description": "Standard square open-field arena with center / periphery / corner zones.",
+  "arena": {"shape": "square", "size_cm": 40},
+  "zones": [
+    {"name": "center",    "type": "rect", "coords": [[0.3, 0.3], [0.7, 0.7]], "color": "#a855f7"},
+    {"name": "periphery", "type": "rect_ring", "coords": [[0.0, 0.0], [1.0, 1.0], [0.15, 0.15], [0.85, 0.85]], "color": "#60a5fa"},
+    {"name": "corner_nw", "type": "rect", "coords": [[0.0, 0.0], [0.15, 0.15]], "color": "#34d399"},
+    {"name": "corner_ne", "type": "rect", "coords": [[0.85, 0.0], [1.0, 0.15]], "color": "#34d399"},
+    {"name": "corner_sw", "type": "rect", "coords": [[0.0, 0.85], [0.15, 1.0]], "color": "#34d399"},
+    {"name": "corner_se", "type": "rect", "coords": [[0.85, 0.85], [1.0, 1.0]], "color": "#34d399"}
+  ],
+  "default_measures": ["distance", "speed", "time_center", "thigmotaxis"],
+  "default_plots":    ["trajectory", "heatmap", "speed_profile", "zone_bar"]
+}

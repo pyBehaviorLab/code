@@ -1,0 +1,14 @@
+{
+  "id": "ezm",
+  "label": "Elevated Zero Maze",
+  "description": "Annular elevated maze divided into 4 quadrants, 2 open, 2 closed.",
+  "arena": {"shape": "annulus", "outer_radius_cm": 30, "inner_radius_cm": 22},
+  "zones": [
+    {"name": "open_n",   "type": "annular_sector", "coords": [[0.5, 0.5], 0.37, 0.50, -45, 45], "color": "#fbbf24", "tags": ["open"]},
+    {"name": "closed_e", "type": "annular_sector", "coords": [[0.5, 0.5], 0.37, 0.50,  45, 135], "color": "#60a5fa", "tags": ["closed"]},
+    {"name": "open_s",   "type": "annular_sector", "coords": [[0.5, 0.5], 0.37, 0.50, 135, 225], "color": "#fbbf24", "tags": ["open"]},
+    {"name": "closed_w", "type": "annular_sector", "coords": [[0.5, 0.5], 0.37, 0.50, 225, 315], "color": "#60a5fa", "tags": ["closed"]}
+  ],
+  "default_measures": ["distance", "speed", "open_arc_time"],
+  "default_plots":    ["trajectory", "heatmap", "zone_bar"]
+}

@@ -1,0 +1,8 @@
+{
+  "id": "distance",
+  "label": "Distance Traveled",
+  "default_enabled": true,
+  "unit": "cm",
+  "description": "Total path length of the primary body part (in cm if scale set, else px).",
+  "params": []
+}

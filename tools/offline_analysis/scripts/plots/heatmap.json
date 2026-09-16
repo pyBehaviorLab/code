@@ -1,0 +1,7 @@
+{
+  "id": "heatmap",
+  "label": "Occupancy Heatmap",
+  "default_enabled": true,
+  "description": "2-D histogram of dwell time per pixel, smoothed with a Gaussian kernel.",
+  "options": {"bins": 64, "sigma": 1.5}
+}

@@ -1,0 +1,8 @@
+{
+  "id": "speed",
+  "label": "Speed (mean / max)",
+  "default_enabled": true,
+  "unit": "cm/s",
+  "description": "Mean and maximum speed of the primary body part.",
+  "params": []
+}

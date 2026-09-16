@@ -1,0 +1,328 @@
+<title>How Latency Is Measured</title>
+<style>
+  :root{
+    --bg:#fafbfd; --card:#ffffff; --ink:#15171c; --mut:#5a6472;
+    --fade:#8a94a4; --line:#e2e6ee; --head:#f3f6fa;
+    --mcu:#2b6cb0; --cam:#b7791f; --host:#2f855a; --hot:#c53030;
+    --accent:#2b6cb0;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#13151a; --card:#1c1f26; --ink:#e9edf3; --mut:#98a3b3;
+      --fade:#6f7b8c; --line:#2a2f39; --head:#232831;
+      --mcu:#7fb3e8; --cam:#e0b063; --host:#7fcf9f; --hot:#f08a8a;
+      --accent:#7fb3e8;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#13151a; --card:#1c1f26; --ink:#e9edf3; --mut:#98a3b3;
+    --fade:#6f7b8c; --line:#2a2f39; --head:#232831;
+    --mcu:#7fb3e8; --cam:#e0b063; --host:#7fcf9f; --hot:#f08a8a;
+    --accent:#7fb3e8;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.62 "Segoe UI","Segoe UI Variable Text",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  main{max-width:1060px;margin:0 auto;padding:52px 26px 80px}
+  code{font-family:"Cascadia Mono",Consolas,ui-monospace,monospace;font-size:.88em}
+  h1{font-family:"Segoe UI Variable Display","Segoe UI",system-ui,sans-serif;
+    font-size:clamp(1.7rem,3.4vw,2.2rem);line-height:1.15;letter-spacing:-.022em;
+    margin:0 0 10px;text-wrap:balance}
+  .lede{color:var(--mut);margin:0 0 8px;max-width:66ch}
+  .meta{color:var(--fade);font-size:.8rem;margin:0}
+  h2{font-size:1.02rem;margin:46px 0 12px;padding-top:16px;
+    border-top:1px solid var(--line)}
+  figure{margin:20px 0 0;background:var(--card);border:1px solid var(--line);
+    border-radius:12px;padding:18px 16px 14px}
+  figure svg{width:100%;height:auto;display:block;color:var(--ink)}
+  figcaption{color:var(--mut);font-size:.87rem;margin-top:12px;max-width:78ch}
+  figcaption b{color:var(--ink)}
+  .scroll{overflow-x:auto}
+  table{border-collapse:separate;border-spacing:0;width:100%;font-size:.92rem;
+    font-variant-numeric:tabular-nums;background:var(--card);
+    border:1px solid var(--line);border-radius:11px;overflow:hidden}
+  th,td{padding:9px 14px;text-align:left;border-bottom:1px solid var(--line);
+    vertical-align:top}
+  thead th{background:var(--head);color:var(--mut);font-weight:600;
+    font-size:.72rem;text-transform:uppercase;letter-spacing:.07em}
+  tbody tr:last-child>*{border-bottom:0}
+  td.n{text-align:right;white-space:nowrap}
+  .note{margin:18px 0 0;padding:13px 16px;background:var(--card);
+    border:1px solid var(--line);border-left:3px solid var(--accent);
+    border-radius:0 11px 11px 0;color:var(--mut);font-size:.91rem}
+  .note b{color:var(--ink)}
+  .key{display:flex;flex-wrap:wrap;gap:16px;margin:14px 0 0;
+    font-size:.82rem;color:var(--mut)}
+  .key span{display:flex;align-items:center;gap:6px}
+  .key i{width:11px;height:11px;border-radius:3px;display:inline-block}
+</style>
+
+<main>
+
+<h1>How the latency probes measure the loop</h1>
+<p class="lede">Where each instant is stamped, on whose clock, and which
+subtraction gives which number. Both probes light a lamp, wait for the host to
+see it in a frame, and time the answer coming back.</p>
+<p class="meta">From <code>tasks/Latency/LatencyProbe.py</code>,
+<code>tasks/Latency/InferenceProbe.py</code> and
+<code>source/video/latency_probe.py</code></p>
+
+<div class="key">
+  <span><i style="background:var(--mcu)"></i> microcontroller, its own clock</span>
+  <span><i style="background:var(--cam)"></i> photons and the camera</span>
+  <span><i style="background:var(--host)"></i> host, its own clock</span>
+  <span><i style="background:var(--hot)"></i> the timed instants</span>
+</div>
+
+<h2>The LED probe: photons to a state machine that can act</h2>
+
+<figure>
+<svg viewBox="0 0 980 620" role="img"
+     aria-label="Sequence diagram. The microcontroller stamps t_on and lights
+     the green lamp. Photons reach the camera, which exposes and reads out.
+     The host's capture returns, and it fires frame_in back to the board,
+     which stamps t_capture. The host then detects the lamp's rising edge
+     inside its window and queues led_seen. The board receives it and stamps
+     t_ack before lighting the red lamp. CAPTURE is t_on to t_capture, REST is
+     t_capture to t_ack, and TOTAL is t_on to t_ack.">
+  <defs>
+    <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7"
+            markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+
+  <!-- lanes -->
+  <g font-size="13" font-weight="700" text-anchor="middle">
+    <text x="250" y="28" fill="var(--mcu)">MICROCONTROLLER</text>
+    <text x="560" y="28" fill="var(--cam)">CAMERA</text>
+    <text x="850" y="28" fill="var(--host)">HOST</text>
+  </g>
+  <g stroke="currentColor" stroke-opacity=".28" stroke-dasharray="3 5">
+    <line x1="250" y1="40" x2="250" y2="560"/>
+    <line x1="560" y1="40" x2="560" y2="560"/>
+    <line x1="850" y1="40" x2="850" y2="560"/>
+  </g>
+
+  <!-- t_on -->
+  <circle cx="250" cy="75" r="5" fill="var(--hot)"/>
+  <text x="264" y="71" font-size="12.5" font-weight="700" fill="var(--hot)">t_on</text>
+  <text x="264" y="88" font-size="11.5" fill="currentColor" fill-opacity=".72">stamped, then GREEN lit</text>
+
+  <g stroke="currentColor" fill="none" marker-end="url(#a1)" stroke-width="1.4">
+    <line x1="256" y1="95" x2="554" y2="120"/>
+    <line x1="566" y1="185" x2="844" y2="212"/>
+    <line x1="844" y1="268" x2="256" y2="268"/>
+    <line x1="844" y1="470" x2="256" y2="470"/>
+  </g>
+
+  <text x="400" y="101" font-size="11.5" text-anchor="middle" fill="currentColor" fill-opacity=".72">photons</text>
+  <text x="705" y="192" font-size="11.5" text-anchor="middle" fill="currentColor" fill-opacity=".72">USB transport, MJPG decode</text>
+  <text x="548" y="261" font-size="11.5" text-anchor="middle" fill="currentColor" fill-opacity=".72">frame_in, fired for EVERY frame</text>
+  <text x="548" y="463" font-size="11.5" text-anchor="middle" fill="currentColor" fill-opacity=".72">led_seen, over serial</text>
+
+  <!-- camera work -->
+  <rect x="500" y="128" width="120" height="50" rx="7" fill="var(--cam)" fill-opacity=".14"
+        stroke="var(--cam)" stroke-opacity=".55"/>
+  <text x="560" y="148" font-size="11.5" text-anchor="middle" fill="currentColor">exposure</text>
+  <text x="560" y="164" font-size="11.5" text-anchor="middle" fill="currentColor">and readout</text>
+
+  <!-- host: capture -->
+  <circle cx="850" cy="222" r="4.5" fill="var(--host)"/>
+  <text x="864" y="219" font-size="11.5" fill="currentColor">cap.read() returns</text>
+  <text x="864" y="234" font-size="11" fill="currentColor" fill-opacity=".62">capture_host_ns</text>
+
+  <!-- t_capture -->
+  <circle cx="250" cy="280" r="5" fill="var(--hot)"/>
+  <text x="150" y="277" font-size="12.5" font-weight="700" text-anchor="end" fill="var(--hot)">t_capture</text>
+  <text x="150" y="294" font-size="11.5" text-anchor="end" fill="currentColor" fill-opacity=".72">first frame_in after the flash</text>
+  <text x="150" y="309" font-size="11.5" text-anchor="end" fill="currentColor" fill-opacity=".72">BLUE marks it</text>
+
+  <!-- host: detect -->
+  <rect x="790" y="320" width="170" height="54" rx="7" fill="var(--host)" fill-opacity=".14"
+        stroke="var(--host)" stroke-opacity=".55"/>
+  <text x="875" y="340" font-size="11.5" text-anchor="middle" fill="currentColor">mean inside the lamp</text>
+  <text x="875" y="356" font-size="11.5" text-anchor="middle" fill="currentColor">window crosses the</text>
+  <text x="875" y="369" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity=".62">hysteresis threshold</text>
+  <text x="784" y="392" font-size="11" text-anchor="end" fill="currentColor" fill-opacity=".62">detect_done_ns</text>
+
+  <circle cx="850" cy="424" r="4.5" fill="var(--host)"/>
+  <text x="836" y="421" font-size="11.5" text-anchor="end" fill="currentColor">led_seen queued</text>
+  <text x="836" y="436" font-size="11" text-anchor="end" fill="currentColor" fill-opacity=".62">push_queued_ns</text>
+
+  <!-- t_ack -->
+  <circle cx="250" cy="482" r="5" fill="var(--hot)"/>
+  <text x="264" y="479" font-size="12.5" font-weight="700" fill="var(--hot)">t_ack</text>
+  <text x="264" y="496" font-size="11.5" fill="currentColor" fill-opacity=".72">stamped BEFORE RED is lit,</text>
+  <text x="264" y="511" font-size="11.5" fill="currentColor" fill-opacity=".72">so the answer is never inside its own number</text>
+
+  <!-- brackets -->
+  <g stroke="var(--hot)" stroke-width="1.5" fill="none">
+    <path d="M112,75 L96,75 L96,280 L112,280"/>
+    <path d="M112,280 L96,280 L96,482 L112,482"/>
+    <path d="M60,75 L44,75 L44,482 L60,482"/>
+  </g>
+  <g font-size="12" font-weight="700">
+    <text x="90" y="172" text-anchor="end" fill="var(--hot)">CAPTURE</text>
+    <text x="90" y="385" text-anchor="end" fill="var(--hot)">REST</text>
+    <text x="38" y="272" text-anchor="end" fill="var(--hot)">TOTAL</text>
+  </g>
+  <g font-size="10.5" fill="currentColor" fill-opacity=".62">
+    <text x="90" y="187" text-anchor="end">exposure, transport, decode</text>
+    <text x="90" y="400" text-anchor="end">detection + serial return</text>
+    <text x="38" y="287" text-anchor="end">the whole loop</text>
+  </g>
+
+  <text x="490" y="588" font-size="11.5" text-anchor="middle" fill="currentColor" fill-opacity=".7">
+    All three instants are stamped on the MICROCONTROLLER's clock, so the round trip crosses no clock boundary.
+  </text>
+</svg>
+<figcaption><b>Three instants, one clock.</b> <code>t_on</code> is stamped
+before the pin write and <code>t_ack</code> the moment <code>led_seen</code>
+arrives, before the red lamp is lit, so the acknowledgement never lands inside
+the number it reports. <b>CAPTURE is quantised by one frame period</b>, because
+the flash and the exposure are unsynchronised: read its minimum over many
+randomly phased trials, never a single trial.</figcaption>
+</figure>
+
+<h2>The inference probe: the same loop, with the tracker inside it</h2>
+
+<figure>
+<svg viewBox="0 0 980 470" role="img"
+     aria-label="The same loop as the LED probe, with one change on the host
+     side: after the frame is captured the tracker runs on it and fires
+     frame_out, and led_seen is released only once that result exists, so the
+     round trip carries the real inference cost.">
+  <defs>
+    <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7"
+            markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+
+  <g font-size="13" font-weight="700" text-anchor="middle">
+    <text x="250" y="26" fill="var(--mcu)">MICROCONTROLLER</text>
+    <text x="850" y="26" fill="var(--host)">HOST</text>
+  </g>
+  <g stroke="currentColor" stroke-opacity=".28" stroke-dasharray="3 5">
+    <line x1="250" y1="38" x2="250" y2="410"/>
+    <line x1="850" y1="38" x2="850" y2="410"/>
+  </g>
+
+  <circle cx="250" cy="66" r="5" fill="var(--hot)"/>
+  <text x="264" y="63" font-size="12.5" font-weight="700" fill="var(--hot)">t_on</text>
+  <text x="264" y="79" font-size="11.5" fill="currentColor" fill-opacity=".72">GREEN lit</text>
+
+  <g stroke="currentColor" fill="none" marker-end="url(#a2)" stroke-width="1.4">
+    <line x1="256" y1="86" x2="844" y2="120"/>
+    <line x1="844" y1="168" x2="256" y2="168"/>
+    <line x1="844" y1="280" x2="256" y2="280"/>
+    <line x1="844" y1="352" x2="256" y2="352"/>
+  </g>
+  <text x="548" y="96" font-size="11.5" text-anchor="middle" fill="currentColor" fill-opacity=".72">photons, camera, transport, decode</text>
+  <text x="548" y="161" font-size="11.5" text-anchor="middle" fill="currentColor" fill-opacity=".72">frame_in, every frame, BEFORE any inference</text>
+  <text x="548" y="273" font-size="11.5" text-anchor="middle" fill="currentColor" fill-opacity=".72">frame_out, once per inference RESULT</text>
+  <text x="548" y="345" font-size="11.5" text-anchor="middle" fill="currentColor" fill-opacity=".72">led_seen, held back until the result exists</text>
+
+  <circle cx="250" cy="180" r="5" fill="var(--hot)"/>
+  <text x="236" y="177" font-size="12.5" font-weight="700" text-anchor="end" fill="var(--hot)">t_capture</text>
+
+  <rect x="770" y="196" width="190" height="66" rx="7" fill="var(--host)" fill-opacity=".16"
+        stroke="var(--host)" stroke-opacity=".6"/>
+  <text x="865" y="218" font-size="12" font-weight="700" text-anchor="middle" fill="currentColor">the tracker runs</text>
+  <text x="865" y="235" font-size="11.5" text-anchor="middle" fill="currentColor">on THAT frame</text>
+  <text x="865" y="251" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity=".62">pose_lag_ms</text>
+
+  <circle cx="250" cy="364" r="5" fill="var(--hot)"/>
+  <text x="264" y="361" font-size="12.5" font-weight="700" fill="var(--hot)">t_ack</text>
+  <text x="264" y="377" font-size="11.5" fill="currentColor" fill-opacity=".72">RED lit after the stamp</text>
+
+  <g stroke="var(--hot)" stroke-width="1.5" fill="none">
+    <path d="M76,66 L60,66 L60,364 L76,364"/>
+  </g>
+  <text x="54" y="208" font-size="12" font-weight="700" text-anchor="end" fill="var(--hot)">TOTAL</text>
+  <text x="54" y="223" font-size="10.5" text-anchor="end" fill="currentColor" fill-opacity=".62">now includes</text>
+  <text x="54" y="237" font-size="10.5" text-anchor="end" fill="currentColor" fill-opacity=".62">the tracker</text>
+
+  <text x="490" y="440" font-size="12" text-anchor="middle" fill="currentColor">
+    Inference cost to the loop = this TOTAL &#8722; a LED probe TOTAL on the same camera
+  </text>
+</svg>
+<figcaption><b>One change, and it is the point.</b> The echo is released only
+once the tracker has produced a result for the frame the lamp appeared in, so
+the round trip carries the real inference cost including queueing behind other
+boxes. <b>Quote the difference against a LED probe run on the same camera</b>,
+not <code>frame_in</code> to <code>frame_out</code>: that pairing resolves only
+to one host tick, so a result landing in the same drain as its frame reads as
+0 ms.</figcaption>
+</figure>
+
+<h2>Which subtraction gives which number</h2>
+<div class="scroll"><table>
+  <thead><tr><th>Quantity</th><th>Clock</th><th>Subtraction</th><th>What it is</th></tr></thead>
+  <tbody>
+    <tr><td><b>CAPTURE</b></td><td>MCU</td><td><code>t_capture &#8722; t_on</code></td>
+      <td>Exposure, transport and decode. Quantised by one frame period.</td></tr>
+    <tr><td><b>REST</b></td><td>MCU</td><td><code>t_ack &#8722; t_capture</code></td>
+      <td>Detection and the serial return.</td></tr>
+    <tr><td><b>TOTAL</b></td><td>MCU</td><td><code>t_ack &#8722; t_on</code></td>
+      <td>Photons to a state machine that can act on them. The number a
+        live experiment lives with.</td></tr>
+    <tr><td>T_host</td><td>host</td><td><code>push_queued &#8722; capture</code></td>
+      <td>What the host itself spent, from the probe log.</td></tr>
+    <tr><td>T_return</td><td>host</td><td><code>ping&#8594;pong / 2</code></td>
+      <td>One serial leg, measured rather than assumed.</td></tr>
+    <tr><td>T_camera</td><td>derived</td><td><code>TOTAL &#8722; T_host &#8722; T_return</code></td>
+      <td>Photons to <code>cap.read()</code> returning. No host instrumentation
+        can reach this directly.</td></tr>
+  </tbody>
+</table></div>
+
+<p class="note"><b>Only the last line crosses clocks, and it subtracts
+durations rather than instants</b>, so no offset between the two clocks
+enters. It assumes only that they tick at the same rate: 50 ppm of crystal
+mismatch is 15 ms across a five-minute run but under 0.02 ms within one trial,
+far below the 1 ms floor.</p>
+
+<h2>What the lamps are for</h2>
+<div class="scroll"><table>
+  <thead><tr><th>Lamp</th><th>Fired by</th><th>Marks</th></tr></thead>
+  <tbody>
+    <tr><td><b style="color:#2f855a">GREEN</b>, LED-A</td><td>the board, at <code>t_on</code></td>
+      <td>The stimulus. This is the one the host hunts for and detects.</td></tr>
+    <tr><td><b style="color:#2b6cb0">BLUE</b></td><td>the board, at <code>t_capture</code></td>
+      <td>Marks the frame that carried the flash. A visual check only.</td></tr>
+    <tr><td><b style="color:#c53030">RED</b>, LED-B</td><td>the board, after <code>t_ack</code></td>
+      <td>The answer came back. Lit after the stamp, so it is outside the
+        measurement.</td></tr>
+  </tbody>
+</table></div>
+
+<p class="note">Both lamps are proven before anything is timed: RED blinks 3
+times, then GREEN 10 times. <b>Without that opening you cannot tell a dead
+answer lamp from a loop that never closes</b> &#8212; both look like "only one
+LED is blinking", and that ambiguity has already cost rig sessions.</p>
+
+<h2>Measured on this rig</h2>
+<div class="scroll"><table>
+  <thead><tr><th>Run</th><th class="n">frame period</th><th class="n">TOTAL median</th>
+    <th class="n">min</th><th class="n">trials</th></tr></thead>
+  <tbody>
+    <tr><td>LED probe, 2 cameras at 30 fps</td><td class="n">33 ms</td>
+      <td class="n">73 / 72 ms</td><td class="n">42 / 38</td><td class="n">1095 / 1094</td></tr>
+    <tr><td>LED probe, 1 camera at 99 fps</td><td class="n">10 ms</td>
+      <td class="n">34 ms</td><td class="n">19</td><td class="n">1099</td></tr>
+    <tr><td>Inference, 2 cameras at 30 fps</td><td class="n">33 ms</td>
+      <td class="n">114 / 113 ms</td><td class="n">62 / 61</td><td class="n">1077 / 1061</td></tr>
+    <tr><td>Inference, 1 camera at 98 fps</td><td class="n">10 ms</td>
+      <td class="n">66 ms</td><td class="n">41</td><td class="n">1122</td></tr>
+  </tbody>
+</table></div>
+
+<p class="note"><b>The frame period dominates the loop.</b> Tripling the rate
+roughly halves the round trip, on both probes. Subtracting the two at 30 fps
+gives about 40 ms as what SLEAP inference costs the loop; at 99 fps it is
+about 32 ms, which is the model's own time rather than the camera's.</p>
+
+</main>

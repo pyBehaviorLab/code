@@ -1,0 +1,20 @@
+{
+  "id": "session_import",
+  "name": "Session Data Import",
+  "version": "1.0",
+  "description": "Import a single pyControl session and view events, states, and variables.",
+  "input": {
+    "type": "SINGLE_FILE",
+    "file_filter": "*.txt *.tsv"
+  },
+  "parameters": [
+    {"name": "time_unit", "label": "Time Unit", "type": "CHOICE",
+     "default": "ms", "choices": ["ms", "second"]}
+  ],
+  "columns": [
+    {"key": "subject_id", "label": "Subject"},
+    {"key": "session_date", "label": "Date"},
+    {"key": "box_id", "label": "Box"}
+  ],
+  "legacy_adapter": true
+}

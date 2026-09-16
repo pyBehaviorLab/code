@@ -80,6 +80,8 @@ analysis_results.*
 error.txt
 mail.txt
 *.tmp.*
+# ...except images the documentation actually uses
+!docs/_static/media/**/*.jpg
 
 # experiments/tracking_configs — ship only the curated examples
 # (bg_images/*_bg.png, box{1,2}_zones.json, tracking_config.json). The

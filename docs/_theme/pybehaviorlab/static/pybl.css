@@ -140,6 +140,10 @@ img{max-width:100%}
 /* Level 4 is carried by WEIGHT, not by a fifth size step, another 1.06x
    size drop would be the same invisible-heading bug as the old h3. */
 .content h4{font-size:var(--t-h4);font-weight:750;margin:1.8em 0 .4em;scroll-margin-top:84px;color:var(--ink)}
+/* Rubrics stand in for headings inside tabs, where Sphinx allows no sections;
+   style them as h4 so step titles read as titles. */
+.content p.rubric{font-size:var(--t-h4);font-weight:750;margin:1.8em 0 .4em;scroll-margin-top:84px;color:var(--ink)}
+.content .sd-tab-content > p.rubric:first-child{margin-top:.4em}
 .content p{margin:.9em 0;color:var(--ink)}
 .content .headerlink{display:none;margin-left:8px;color:var(--fade);font-weight:400;-webkit-text-fill-color:var(--fade)}
 .content h1:hover .headerlink,.content h2:hover .headerlink,.content h3:hover .headerlink{display:inline-block}

@@ -151,7 +151,6 @@ The common serial, camera and upload failures, and what fixes them.
 
 introduction
 installation
-installation-jetson
 getting-started
 architecture
 ```
